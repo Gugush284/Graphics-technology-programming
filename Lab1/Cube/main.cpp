@@ -3,7 +3,10 @@
 
 constexpr double h = 5.0; // размер куба
 constexpr double screen_dist = 1.0; // расстояние до экрана
-constexpr double rho = 15.0, theta = 50.0, phi = 80.0; // параметры камеры
+constexpr double speed = 0.5; // скорость вращения
+constexpr int fps = 60; // расстояние до экрана
+
+double rotation = 0.0;
 
 double v11, v12, v13, v21, v22, v23, v32, v33, v43; // элементы матрицы вида
 
@@ -60,6 +63,8 @@ void coeff(double rho, double theta, double phi) {
 
 // Функция отображения
 void Display(void) {
+    const double rho = 15.0, phi = 80.0;
+    double theta = 50.0 + rotation;
     coeff(rho, theta, phi);
 
     glClearColor(0, 0, 0, 1);
@@ -90,6 +95,15 @@ void Reshape(GLint w, GLint h) {
     glViewport(0, 0, w, h);
 }
 
+void Timer(int value){
+	rotation += speed;
+	if (rotation > 360)
+		rotation -= 360;
+
+	glutPostRedisplay();
+	glutTimerFunc(1000 / fps, Timer, 0);
+}
+
 int main(int argc, char *argv[]) {
     glutInit(&argc, argv); // инициализация GLUT
     glutInitDisplayMode(GLUT_RGB);
@@ -99,6 +113,8 @@ int main(int argc, char *argv[]) {
 
     glutDisplayFunc(Display); // функция отображения
     glutReshapeFunc(Reshape); // функция изменения размера
+    glutTimerFunc(0, Timer, 0);
+
     glutMainLoop(); // основной цикл GLUT
 
     return 0;
