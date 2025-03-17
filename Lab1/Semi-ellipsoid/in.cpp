@@ -2,6 +2,7 @@
 
 int main() {
     int i, j;
+    double min_theta = 0;
 
     std::ofstream file("ellipsoid_data.txt");
     if (!file) {
@@ -11,7 +12,12 @@ int main() {
     // Генерация точек и сохранение в файл
     for (i = 0; i < n; i++) {
         double theta1 = M_PI * i / 2 / (n - 1);
+        if (cos(theta1) < cos(min_theta))
+            min_theta = theta1;
+
         double theta2 = M_PI * (i + 1) / 2 / (n - 1);
+        if (cos(theta2) < cos(min_theta))
+            min_theta = theta2;
 
         for (j = 0; j < 2 * n; j++) {
             double phi1 = 2 * M_PI * j / (2 * n);
@@ -47,21 +53,17 @@ int main() {
         return 1;
     }
 
-    for (i = 0; i < n / 10; i++)
-		for (j = 0; j < 2 * n; j++) {
-			double phi1 = 2 * M_PI * j / (2 * n);  // Углы для сегментов
-			double phi2 = 2 * M_PI * (j + 1) / (2 * n);
+    file2 << 0 << " " << 0 << " " << c * cos(min_theta) << "\n";
 
-			double x1 = a * i / n * cos(phi1);
-			double y1 = b * i / n * sin(phi1);
+    for (i = 0; i < 2 * n; i++){
+        double phi = 2.0f * M_PI * float(i) / float(2 * n);
 
-			double x2 = a * cos(phi2);
-			double y2 = b * sin(phi2);
+        double x = a * sin(min_theta) * cos(phi);
+        double y = b * sin(min_theta) * sin(phi);
+        double z = c * cos(min_theta);
 
-			file2 << x1 << " " << y1 << " " << 0 << "\n";
-            file2 << x2 << " " << y2 << " " << 0 << "\n";
-		}
-
+		file2 << x << " " << y << " " << z << "\n";
+    }
     file2.close();
     std::cout << "Данные сохранены в файл 'edge_data.txt'" << std::endl;
 

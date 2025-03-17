@@ -1,16 +1,17 @@
 #include <GL/glut.h>
-#include <vector>
 
 #include "ellipsoid.h"
+
+constexpr double screen_dist = 1.0; // Расстояние до экрана
 
 struct Point {
     double x, y, z;
 };
 
-constexpr double screen_dist = 1.0; // Расстояние до экрана
-
 double v11, v12, v13, v21, v22, v23, v32, v33, v43; // элементы матрицы вида
 double rho = 15.0, phi = 80.0, theta = 50.0;
+std::vector<Point> eps;
+std::vector<Point> edge;
 
 void perspective(double x, double y, double z, double *pX, double *pY) {
     double xe, ye, ze;
@@ -60,9 +61,6 @@ void coeff(double rho, double theta, double phi) {
     v43 = rho;
 }
 
-std::vector<Point> eps;
-std::vector<Point> edge;
-
 void LoadData(const char* filename, std::vector<Point> * points) {
     std::ifstream file(filename);
     if (!file) {
@@ -93,8 +91,8 @@ void Display(void) {
             dw(eps[i+3].x, eps[i+3].y, eps[i+3].z, eps[i].x, eps[i].y, eps[i].z);
     }
 
-	for (i = 0; i < edge.size(); i += 2)
-        dw(edge[i].x, edge[i].y, edge[i].z, edge[i+1].x, edge[i+1].y, edge[i+1].z);
+	for (i = 1; i < edge.size(); i ++)
+        dw(edge[i].x, edge[i].y, edge[i].z, edge[0].x, edge[0].y, edge[0].z);
 
     glFinish();
 }
