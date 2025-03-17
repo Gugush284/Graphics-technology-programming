@@ -1,6 +1,11 @@
 #include <GL/glut.h>
-#include <cmath>
 #include <vector>
+
+#include "ellipsoid.h"
+
+struct Point {
+    double x, y, z;
+};
 
 constexpr double screen_dist = 1.0; // Расстояние до экрана
 
@@ -55,63 +60,41 @@ void coeff(double rho, double theta, double phi) {
     v43 = rho;
 }
 
+std::vector<Point> eps;
+std::vector<Point> edge;
+
+void LoadData(const char* filename, std::vector<Point> * points) {
+    std::ifstream file(filename);
+    if (!file) {
+        exit(1);
+    }
+
+    Point p;
+    while (file >> p.x >> p.y >> p.z) {
+        (* points).push_back(p);
+    }
+
+    file.close();
+}
+
 void Display(void) {
     glClearColor(255, 255, 255, 1);
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3ub(255, 0, 0);
 
-    // Параметры эллипсоида
-    double a = 10.0, b = 8.0, c = 6.0;
-    int n = 50; // количество сегментов
-	int i, j;
+	int i;
 
     // Генерация точек и рёбер эллипсоида
-    for (i = 0; i < n; i++) {
-        double theta1 = M_PI * i / 2 / (n - 1);  // Углы для сегментов
-        double theta2 = M_PI * (i + 1) / 2 / (n - 1);
-
-        for (j = 0; j < 2 * n; j++) {
-            double phi1 = 2 * M_PI * j / (2 * n);  // Углы для сегментов
-            double phi2 = 2 * M_PI * (j + 1) / (2 * n);
-
-            // Точки для двух соседних сегментов
-            double x1 = a * sin(theta1) * cos(phi1);
-            double y1 = b * sin(theta1) * sin(phi1);
-            double z1 = c * cos(theta1);
-
-            double x2 = a * sin(theta1) * cos(phi2);
-            double y2 = b * sin(theta1) * sin(phi2);
-            double z2 = c * cos(theta1);
-
-            double x3 = a * sin(theta2) * cos(phi2);
-            double y3 = b * sin(theta2) * sin(phi2);
-            double z3 = c * cos(theta2);
-
-            double x4 = a * sin(theta2) * cos(phi1);
-            double y4 = b * sin(theta2) * sin(phi1);
-            double z4 = c * cos(theta2);
-
+    for (i = 0; i < eps.size(); i += 4) {
             // Рисуем рёбра эллипсоида
-            dw(x1, y1, z1, x2, y2, z2);
-            dw(x2, y2, z2, x3, y3, z3);
-            dw(x3, y3, z3, x4, y4, z4);
-            dw(x4, y4, z4, x1, y1, z1);
-        }
+            dw(eps[i].x, eps[i].y, eps[i].z, eps[i+1].x, eps[i+1].y, eps[i+1].z);
+            dw(eps[i+1].x, eps[i+1].y, eps[i+1].z, eps[i+2].x, eps[i+2].y, eps[i+2].z);
+            dw(eps[i+2].x, eps[i+2].y, eps[i+2].z, eps[i+3].x, eps[i+3].y, eps[i+3].z);
+            dw(eps[i+3].x, eps[i+3].y, eps[i+3].z, eps[i].x, eps[i].y, eps[i].z);
     }
 
-	for (i = 0; i < n / 10; i++)
-		for (j = 0; j < 2 * n; j++) {
-			double phi1 = 2 * M_PI * j / (2 * n);  // Углы для сегментов
-			double phi2 = 2 * M_PI * (j + 1) / (2 * n);
-
-			double x1 = a * i / n * cos(phi1);
-			double y1 = b * i / n * sin(phi1);
-
-			double x2 = a * cos(phi2);
-			double y2 = b * sin(phi2);
-
-			dw(x1, y1, 0, x2, y2, 0);
-		}
+	for (i = 0; i < edge.size(); i += 2)
+        dw(edge[i].x, edge[i].y, edge[i].z, edge[i+1].x, edge[i+1].y, edge[i+1].z);
 
     glFinish();
 }
@@ -130,6 +113,9 @@ void ftimer(int value) {
 }
 
 int main(int argc, char *argv[]) {
+    LoadData("ellipsoid_data.txt", &eps);
+    LoadData("edge_data.txt", &edge);
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB);
     glutInitWindowSize(640, 480);
