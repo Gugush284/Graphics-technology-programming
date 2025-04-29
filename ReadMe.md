@@ -9,6 +9,11 @@ The second laboratory work is devoted to working with light and coordinate trans
 It was made in Visual Studio.
 
 ## The third laboratory
-The third laboratory work is devoted to working with simple geometric shapes by GPU. For more information.
+The third laboratory work is devoted to working with simple geometric shapes by GPU.
+
+It was made in Visual Studio.
+
+## The fourth laboratory
+The fourth laboratory work is devoted to working with light, the textures use and coordinate transformation by GPU.
 
 It was made in Visual Studio.
